@@ -1,0 +1,18 @@
+{
+  "name": "proyecto-ia-supabase",
+  "version": "1.0.0",
+  "description": "Infraestructura de base de datos y caché para asistente de IA",
+  "main": "TEST_CONNECTION.js",
+  "scripts": {
+    "test": "node TEST_CONNECTION.js",
+    "supabase:start": "npx supabase start",
+    "supabase:stop": "npx supabase stop"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^16.3.1",
+    "redis": "^4.6.10"
+  },
+  "author": "Christopher",
+  "license": "ISC"
+}
