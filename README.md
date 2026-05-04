@@ -26,8 +26,10 @@ Esto aplicará automáticamente las migraciones (tablas, RLS, triggers) que se e
 ### 2. Levantar Redis (Caché para la IA)
 
 ```powershell
-docker run -d --name redis-ia -p 6379:6379 redis:alpine
+docker compose up -d
 ```
+
+> Este comando usa el archivo `docker-compose.yml` incluido en la raíz del proyecto. Redis se levantará en el puerto `6379` con persistencia de datos activada y se reiniciará automáticamente si Docker Desktop se reinicia.
 
 ---
 
@@ -75,8 +77,11 @@ He configurado las siguientes tablas con **Seguridad de Nivel de Fila (RLS)**:
 # Ver estado y llaves
 npx supabase status
 
-# Detener todo
+# Detener Supabase
 npx supabase stop
+
+# Detener Redis
+docker compose down
 
 # Resetear base de datos
 npx supabase db reset
@@ -89,4 +94,3 @@ npx supabase db reset
 He dejado configurado un **Trigger** que crea automáticamente un perfil en la tabla `public.users` cada vez que alguien se registra a través de **Supabase Auth**. No necesitas crear el perfil manualmente.
 
 Tambien he incluido un script [`TEST_CONNECTION.js`](./TEST_CONNECTION.js) para verificar la conectividad. Para ejecutarlo, usa `node TEST_CONNECTION.js` (requiere haber configurado el `.env`).
-

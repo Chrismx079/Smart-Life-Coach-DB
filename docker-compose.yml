@@ -1,0 +1,39 @@
+# =============================================================
+#  docker-compose.yml — proyecto-ia-supabase
+#  Orquesta los servicios de soporte del proyecto.
+#
+#  IMPORTANTE: Supabase NO se levanta aquí — ya gestiona sus
+#  propios contenedores a través de la CLI (npx supabase start).
+#  Este archivo solo levanta los servicios complementarios.
+#
+#  Uso:
+#    Levantar:  docker compose up -d
+#    Detener:   docker compose down
+#    Ver logs:  docker compose logs -f
+# =============================================================
+
+services:
+
+  # -----------------------------------------------------------
+  #  REDIS — Caché para el contexto de la IA
+  # -----------------------------------------------------------
+  redis:
+    image: redis:7-alpine          # Alpine = imagen mínima y segura
+    container_name: redis-ia
+    restart: unless-stopped        # Se reinicia automáticamente salvo que lo pares tú
+    ports:
+      - "6379:6379"                # Puerto estándar de Redis (host:contenedor)
+    volumes:
+      - redis_data:/data           # Persiste los datos entre reinicios
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+# -------------------------------------------------------------
+#  VOLÚMENES — Almacenamiento persistente gestionado por Docker
+# -------------------------------------------------------------
+volumes:
+  redis_data:
+    driver: local
