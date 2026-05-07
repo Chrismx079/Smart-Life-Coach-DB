@@ -8,7 +8,7 @@
       );
 
 
-alter table "public"."chat_messages" enable row level security;
+alter table "public"."chat_messages" disable row level security;
 
 
   create table "public"."chat_sessions" (
@@ -20,7 +20,7 @@ alter table "public"."chat_messages" enable row level security;
       );
 
 
-alter table "public"."chat_sessions" enable row level security;
+alter table "public"."chat_sessions" disable row level security;
 
 
   create table "public"."goals" (
@@ -36,7 +36,7 @@ alter table "public"."chat_sessions" enable row level security;
       );
 
 
-alter table "public"."goals" enable row level security;
+alter table "public"."goals" disable row level security;
 
 
   create table "public"."users" (
@@ -49,7 +49,7 @@ alter table "public"."goals" enable row level security;
       );
 
 
-alter table "public"."users" enable row level security;
+alter table "public"."users" disable row level security;
 
 CREATE UNIQUE INDEX chat_messages_pkey ON public.chat_messages USING btree (id);
 
