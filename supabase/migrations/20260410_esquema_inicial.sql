@@ -36,8 +36,6 @@ alter table "public"."chat_sessions" enable row level security;
     "updated_at" timestamp with time zone not null default now()
       );
 
-alter table "public"."goals" add constraint "goals_parent_id_fkey" 
-foreign key (parent_id) references public.goals(id) on delete cascade;
 alter table "public"."goals" enable row level security;
 
 
@@ -96,6 +94,10 @@ alter table "public"."goals" validate constraint "goals_status_check";
 alter table "public"."goals" add constraint "goals_user_id_fkey" FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE not valid;
 
 alter table "public"."goals" validate constraint "goals_user_id_fkey";
+
+alter table "public"."goals" add constraint "goals_parent_id_fkey" FOREIGN KEY (parent_id) REFERENCES public.goals(id) ON DELETE CASCADE not valid;
+
+alter table "public"."goals" validate constraint "goals_parent_id_fkey";
 
 alter table "public"."users" add constraint "users_age_check" CHECK ((age > 0)) not valid;
 
