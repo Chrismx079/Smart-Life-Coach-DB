@@ -8,24 +8,25 @@
       );
 
 
-alter table "public"."chat_messages" disable row level security;
+alter table "public"."chat_messages" enable row level security;
 
 
   create table "public"."chat_sessions" (
     "id" uuid not null default gen_random_uuid(),
     "user_id" uuid not null,
-    "title" text default 'Nueva conversaci├│n'::text,
+    "title" text default 'Nueva conversacion'::text,
     "created_at" timestamp with time zone not null default now(),
     "updated_at" timestamp with time zone not null default now()
       );
 
 
-alter table "public"."chat_sessions" disable row level security;
+alter table "public"."chat_sessions" enable row level security;
 
 
   create table "public"."goals" (
     "id" uuid not null default gen_random_uuid(),
     "user_id" uuid not null,
+    "parent_id" uuid,
     "title" text not null,
     "description" text,
     "status" text default 'pending'::text,
@@ -35,8 +36,9 @@ alter table "public"."chat_sessions" disable row level security;
     "updated_at" timestamp with time zone not null default now()
       );
 
-
-alter table "public"."goals" disable row level security;
+alter table "public"."goals" add constraint "goals_parent_id_fkey" 
+foreign key (parent_id) references public.goals(id) on delete cascade;
+alter table "public"."goals" enable row level security;
 
 
   create table "public"."users" (
@@ -49,7 +51,7 @@ alter table "public"."goals" disable row level security;
       );
 
 
-alter table "public"."users" disable row level security;
+alter table "public"."users" enable row level security;
 
 CREATE UNIQUE INDEX chat_messages_pkey ON public.chat_messages USING btree (id);
 
@@ -307,9 +309,26 @@ grant update on table "public"."users" to "service_role";
   as permissive
   for all
   to public
-using ((EXISTS ( SELECT 1
-   FROM public.chat_sessions
-  WHERE ((chat_sessions.id = chat_messages.session_id) AND (chat_sessions.user_id = auth.uid())))));
+using (
+    exists (
+      select 1
+      from public.chat_sessions
+      where (
+        chat_sessions.id = chat_messages.session_id
+        and chat_sessions.user_id = auth.uid()
+      )
+    )
+  )
+  with check (
+    exists (
+      select 1
+      from public.chat_sessions
+      where (
+        chat_sessions.id = chat_messages.session_id
+        and chat_sessions.user_id = auth.uid()
+      )
+    )
+  );
 
 
 
@@ -318,7 +337,8 @@ using ((EXISTS ( SELECT 1
   as permissive
   for all
   to public
-using ((auth.uid() = user_id));
+using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
 
 
 
@@ -327,7 +347,22 @@ using ((auth.uid() = user_id));
   as permissive
   for all
   to public
-using ((auth.uid() = user_id));
+using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+
+  create policy "Users can view their own profile"
+  on "public"."users"
+  for select
+  to public
+using ( auth.uid() = id );
+
+  create policy "Users can update their own profile"
+  on "public"."users"
+  for update
+  to public
+using ( auth.uid() = id )
+  with check ( auth.uid() = id );
 
 
 CREATE TRIGGER handle_sessions_updated_at BEFORE UPDATE ON public.chat_sessions FOR EACH ROW EXECUTE FUNCTION public.moddatetime();
