@@ -72,6 +72,7 @@ Almacena las metas y objetivos creados por cada usuario. Cada meta pertenece exc
 |---|---|---|---|---|---|
 | `id` | `uuid` | NO | `gen_random_uuid()` | `PRIMARY KEY` | Identificador único de la meta, generado automáticamente. |
 | `user_id` | `uuid` | NO | — | `REFERENCES users(id) ON DELETE CASCADE` | Usuario propietario de la meta. Al eliminar el usuario, sus metas se eliminan en cascada. |
+| `parent_id` | `uuid` | SÍ | `NULL` | `REFERENCES goals(id) ON DELETE CASCADE` | Referencia a una meta padre. Permite crear submetas (jerarquía recursiva). Al eliminar la meta padre, las submetas se eliminan en cascada. |
 | `title` | `text` | NO | — | — | Título o nombre de la meta. |
 | `description` | `text` | SÍ | `NULL` | — | Descripción detallada opcional de la meta. |
 | `status` | `text` | SÍ | `'pending'` | `CHECK (status IN ('pending', 'in_progress', 'completed'))` | Estado actual de la meta. |
@@ -112,7 +113,7 @@ Agrupa los mensajes de chat en conversaciones independientes. Cada sesión perte
 |---|---|---|---|---|---|
 | `id` | `uuid` | NO | `gen_random_uuid()` | `PRIMARY KEY` | Identificador único de la sesión, generado automáticamente. |
 | `user_id` | `uuid` | NO | — | `REFERENCES users(id) ON DELETE CASCADE` | Usuario propietario de la sesión. Al eliminar el usuario, sus sesiones se eliminan en cascada. |
-| `title` | `text` | SÍ | `'Nueva conversación'` | — | Título descriptivo de la conversación. |
+| `title` | `text` | SÍ | `'Nueva conversacion'` | — | Título descriptivo de la conversación. |
 | `created_at` | `timestamptz` | NO | `now()` | — | Fecha y hora de creación de la sesión. |
 | `updated_at` | `timestamptz` | NO | `now()` | — | Fecha y hora de la última modificación. Actualizado automáticamente por el trigger. |
 
@@ -153,6 +154,8 @@ Todas las tablas tienen **Row Level Security** habilitado. Las políticas garant
 
 | Tabla | Política | Operación | Condición |
 |---|---|---|---|
+| `users` | `Users can view their own profile` | `SELECT` | `auth.uid() = id` |
+| `users` | `Users can update their own profile` | `UPDATE` | `auth.uid() = id` |
 | `goals` | `Users can manage their own goals` | `ALL` | `auth.uid() = user_id` |
 | `chat_sessions` | `Users can manage their own sessions` | `ALL` | `auth.uid() = user_id` |
 | `chat_messages` | `Users can manage messages of their sessions` | `ALL` | El `session_id` del mensaje debe pertenecer a una sesión del usuario autenticado |
@@ -168,9 +171,10 @@ auth.users (Supabase Auth)
     ▼
 public.users
     │
-    ├──── public.goals
-    │         (user_id → users.id, CASCADE DELETE)
-    │
+    ├──── public.goals ◄──────────────────┐
+    │         (user_id → users.id,         │ (parent_id → goals.id,
+    │          CASCADE DELETE)             │  CASCADE DELETE)
+    │                                      └──────────────────────┘
     └──── public.chat_sessions
               (user_id → users.id, CASCADE DELETE)
                    │
