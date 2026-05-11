@@ -35,24 +35,13 @@ docker compose up -d
 
 ## 🔐 Credenciales de Conexión
 
-### Backend (Node.js / Python)
+### .env
 
-| Variable | Valor |
-|---|---|
-| **Postgres URL** | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` |
-| **Redis URL** | `redis://localhost:6379` |
-| **Service Role Key** | Ver nota abajo ↓ |
+En el archivo .env se usan las claves generadas en console.cloud.google.com/ en especifico la google auth platform, donde generas tu cliente de autenticacion, se recomienda añadir las siguientes URIs en "Authorized redirect URIs":
+http://127.0.0.1:54321/auth/v1/callback
+http://localhost:54321/auth/v1/callback
 
-> He incluido un archivo `.env.example`. Cámbiale el nombre a `.env` y completa el valor de `SERVICE_ROLE_KEY` con la **Authentication Key (Secret)** que aparece al ejecutar `npx supabase status`.
-
-### Frontend (React / Vue / Flutter)
-
-| Variable | Valor |
-|---|---|
-| **Project URL** | `http://127.0.0.1:54321` |
-| **Anon Key** | Ver nota abajo ↓ |
-
-> Completa el valor de `ANON_KEY` en tu `.env` con la **Authentication Key (Publishable)** que aparece al ejecutar `npx supabase status`.
+El SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID= siempre se puede consultar en la google auth platform, pero el SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET= solo se puede ver una vez creadas
 
 ---
 
@@ -60,11 +49,11 @@ docker compose up -d
 
 He configurado las siguientes tablas con **Seguridad de Nivel de Fila (RLS)**:
 
-| Tabla | Descripción |
-|---|---|
-| `users` | Perfiles de usuario sincronizados automáticamente. |
-| `goals` | Metas y objetivos del usuario. |
-| `chat_sessions` | Agrupador de conversaciones. |
+| Tabla           | Descripción                                             |
+| --------------- | ------------------------------------------------------- |
+| `users`         | Perfiles de usuario sincronizados automáticamente.      |
+| `goals`         | Metas y objetivos del usuario.                          |
+| `chat_sessions` | Agrupador de conversaciones.                            |
 | `chat_messages` | Historial de mensajes (optimizado para contexto de IA). |
 
 ---
